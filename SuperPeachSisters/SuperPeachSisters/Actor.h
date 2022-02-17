@@ -36,8 +36,9 @@ private:
     bool is_temporairly_invisible;
     int health_points;
     int remaining_jump;
+    bool jumping;
 public:
-    Peach(StudentWorld* world, int level_x, int level_y) :Actor(world, IID_PEACH, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 1), has_star_power(false), has_shoot_power(false), has_jump_power(false), is_temporairly_invisible(false), health_points(1), remaining_jump(0)
+    Peach(StudentWorld* world, int level_x, int level_y) :Actor(world, IID_PEACH, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 1), has_star_power(false), has_shoot_power(false), has_jump_power(false), is_temporairly_invisible(false), health_points(1), remaining_jump(0), jumping(false)
     {
     };
 
