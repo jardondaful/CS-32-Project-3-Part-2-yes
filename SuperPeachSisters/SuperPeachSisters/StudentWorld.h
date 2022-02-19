@@ -37,24 +37,33 @@ private:
     Mushroom* m_mushroom;
     Star* m_star;
     Piranha_Fireball* m_piranha_fireball;
+    Peach_Fireball* m_peach_fireball;
     Shell* m_shell;
     Goomba* m_goomba;
     Koopa* m_koopa;
     Piranha* m_pirahna;
     vector<Actor*> actors;
+
+    bool m_level_completed;
 public:
     StudentWorld(std::string assetPath);
+    ~StudentWorld();
+
     virtual int init();
     virtual int move();
     virtual void cleanUp();
-    ~StudentWorld();
-    bool isValidPosition(double x, double y);
+
 
     bool intersecting(double x1, double y1, double x2, double y2);
-
+    bool collides(Actor* actor1, int offset_x, int offset_y);
     bool overlapping(Actor* a, Actor* b);
     bool overlappingPeach(Actor* a);
-    bool collides(Actor* actor1, int offset_x, int offset_y);
+
+    void addPeachFireball(double x, double y);
+    void levelCompleted()
+    {
+        m_level_completed = true;
+    }
 };
 
 #endif

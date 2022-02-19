@@ -1,12 +1,13 @@
-#include "Actor.h"
 #include "StudentWorld.h"
-
-const int LEFT = 180;
-const int RIGHT = 0;
+#include "GameConstants.h"
+#include "Actor.h"
+#include "Level.h"
+#include "string"
+#include <vector>
 
 
 // Students:  add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
-//do x_dist and y_dist insteadn of x_destination
+// TODO: x_dist and y_dist instead of x_destination
 void Peach::goTo(double x_destination, double y_destination)
 {
     if (!getWorld()->collides(this, x_destination - getX(), y_destination - getY()))
@@ -15,10 +16,50 @@ void Peach::goTo(double x_destination, double y_destination)
     }
 }
 
-void Peach::doSomething() {
-    int key;
-    bool somethingUnderPeach = getWorld()->collides(this, 0, -SPRITE_HEIGHT/2 - 1);
-    bool somethingOverPeach = getWorld()->collides(this, 0, SPRITE_HEIGHT/2 + 1);
+//this is quite incomplete
+void Peach::doSomething() 
+{
+    if (!isAlive())
+    {
+        return;
+    }
+
+    //give Peach 150 ticks if she touches the star power somehow
+    if (has_star_power)
+    {
+        is_temporairly_invincible = true;
+    }
+
+    //2) and 3) checking for invinciblity
+    if (remaining_invincibility_ticks <= 0)
+    {
+        has_star_power = false;
+        is_temporairly_invincible = false;
+    }
+
+    if (is_temporairly_invincible)
+    {
+        remaining_invincibility_ticks--;
+    }
+
+    //TODO: #4) each gains temporary invincibility if she overlaps with an emey while she has Jump power or Fire power
+    if (ticks_to_recharge_before_next_fire > 0)
+    {
+        ticks_to_recharge_before_next_fire--;
+    }
+
+    if (ticks_to_recharge_before_next_fire == 0)
+    {
+        can_fire = true;
+    }
+
+    //5) chekcing if she currently overlaps with any other gaming object and make bonk
+    //Also 7) checkign if not actively jumping during the current tick
+
+    bool somethingUnderPeach = getWorld()->collides(this, 0, -SPRITE_HEIGHT / 2 - 1);
+    bool somethingOverPeach = getWorld()->collides(this, 0, SPRITE_HEIGHT / 2 + 1);
+    bool somethingLeftOfPeach = getWorld()->collides(this, -SPRITE_WIDTH / 2 - 1, 0);
+    bool somethingRightOfPeach = getWorld()->collides(this, SPRITE_WIDTH / 2 + 1, 0);
 
     if (jumping && somethingOverPeach) {
         jumping = false;
@@ -31,67 +72,112 @@ void Peach::doSomething() {
         remaining_jump--;
     }
 
-    if (jumping && remaining_jump == 0) {
+    if (jumping && remaining_jump == 0) 
+    {
         jumping = false;
     }
 
-    if (!jumping && !somethingUnderPeach) {
+    if (!jumping && !somethingUnderPeach) 
+    {
         goTo(getX(), getY() - (SPRITE_WIDTH / 2));
-        cout << "Falling" << endl;
     }
 
     somethingUnderPeach = getWorld()->collides(this, 0, -SPRITE_HEIGHT / 2 - 1);
     somethingOverPeach = getWorld()->collides(this, 0, SPRITE_HEIGHT / 2 + 1);
 
-    if (jumping && somethingUnderPeach) {
+    if (jumping && somethingUnderPeach) 
+    {
         jumping = false;
         remaining_jump = 0;
     }
 
-    if (getWorld()->getKey(key)) {
+    //6) Making Peach move
+    int key;
+
+    if (getWorld()->getKey(key)) 
+    {
         cerr << "current pos: " << getX() << ", " << getY() << endl;
-        switch (key) {
-        case KEY_PRESS_LEFT: {
-            cerr << "pressed left" << endl;
-            cerr << "moving to position: " << getX() - (SPRITE_WIDTH / 2) << ", " << getY() << endl;
-            if (getDirection() == RIGHT) {
-                setDirection(LEFT);
+        switch (key) 
+        {
+        case KEY_PRESS_LEFT: 
+        {
+
+            if (getDirection() == 0) 
+            {
+                setDirection(180);
             }
             goTo(getX() - (SPRITE_WIDTH / 2), getY());
-            //validMoveTo(getX() - (SPRITE_WIDTH / 2), getY());
             break;
         }
         case KEY_PRESS_RIGHT:
-            cerr << "pressed right" << endl;
-            cerr << "moving to position: " << getX() + (SPRITE_HEIGHT / 2) << ", " << getY() << endl;
-            if (getDirection() == LEFT) {
-                setDirection(RIGHT);
+
+            if (getDirection() == 180) {
+                setDirection(0);
             }
             goTo(getX() + (SPRITE_WIDTH / 2), getY());
-            //validMoveTo(getX() + (SPRITE_WIDTH / 2), getY());
             break;
         case KEY_PRESS_UP:
 
-            if (!jumping && somethingUnderPeach) {
-                remaining_jump = 8;
+            if (!jumping && somethingUnderPeach) 
+            {
+                if (has_jump_power)
+                {
+                    remaining_jump = 12;
+                }
+                else
+                {
+                    remaining_jump = 8;
+                }
                 jumping = true;
             }
 
-            /*if (has_jump_power)
+            //making jumping sound effect
+
+            if (jumping && somethingUnderPeach)
             {
-                remaining_jump = 12;
+                getWorld()->playSound(SOUND_PLAYER_JUMP);
+            }
+
+            cout << "Remaining jump after key press up: " << remaining_jump << endl;
+            break;
+
+        //coding the shoot power thingy for #9
+        case KEY_PRESS_SPACE:
+            if (!has_shoot_power)
+            {
+                break;
+            }
+            else if (ticks_to_recharge_before_next_fire > 0)
+            {
+                break;
             }
             else
             {
-                remaining_jump = 8;
-            }*/
-            cerr << "pressed up" << endl;
-            cerr << "moving to position: " << getX() << ", " << getY() + (SPRITE_HEIGHT / 2) - 1 << endl;
-            cout << "Remaining jump after key press up: " << remaining_jump << endl;
+            
+            //why no fireball show up?
+                can_fire = true;
+                getWorld()->playSound(SOUND_PLAYER_FIRE);
+                ticks_to_recharge_before_next_fire = 8;
+                if (this->getDirection() == 180)
+                {
+                    getWorld()->addPeachFireball(this->getX()-4, this->getY());
+                    //cerr<<"Fireball" << endl;
+                }
+                else if (this->getDirection() == 0)
+                {
+                    getWorld()->addPeachFireball(this->getX()+4, this->getY());
+                    //cerr<<"Fireball" << endl;
+                }
+                else
+                {
+
+                }
+            }
             break;
         }
     }
 }
+
 
 void Flag::doSomething()
 {
@@ -99,9 +185,9 @@ void Flag::doSomething()
     {
         getWorld()->increaseScore(1000);
         die();
+        getWorld()->levelCompleted();
     }
 }
-
 void Goomba::doSomething()
 {
     bool somethingLeft = getWorld()->collides(this, -1, 0);
@@ -117,39 +203,16 @@ void Goomba::doSomething()
         return;
     }
 
-    if (somethingLeft) setDirection(RIGHT);
-    else if (somethingRight) setDirection(LEFT);
+    if (somethingLeft) setDirection(0);
+    else if (somethingRight) setDirection(180);
 
     int direction = getDirection();
-    if (direction == LEFT) moveTo(getX() - 1, getY());
-    else if (direction == RIGHT) moveTo(getX() + 1, getY());
+    if (direction == 180) moveTo(getX() - 1, getY());
+    else if (direction == 0) moveTo(getX() + 1, getY());
+}
 
+//implement later
+void Peach_Fireball::doSomething()
+{
     
-    //int direction = getDirection();
-    //if (direction == LEFT)
-    //{
-    //    // If something exists on the left
-    //    if (somethingLeft)
-    //    {
-    //        // Start moving towards right
-    //        setDirection(RIGHT);
-    //        cerr << "SWITCH TO RIGHT"<<endl;
-    //    }
-
-    //    // Otherwise, move to left
-    //    else moveTo(getX()-1, getY());
-    //}
-    //
-    //if (direction == RIGHT)
-    //{
-    //    if (somethingRight)
-    //    {
-    //        setDirection(LEFT);
-    //        cerr << "SWITCH TO LEFT" << endl;
-    //    }
-    //    else
-    //    {
-    //        moveTo(getX()+1, getY());
-    //    }
-    //}
 }

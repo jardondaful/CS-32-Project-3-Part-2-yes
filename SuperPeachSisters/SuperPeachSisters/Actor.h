@@ -12,8 +12,9 @@ private:
     StudentWorld* m_world;
     bool alive;
 public:
-    Actor(StudentWorld* world, int imageID, double starting_x_position, double starting_y_position, int starting_direction, int depth) :GraphObject(imageID, starting_x_position, starting_y_position, starting_direction, depth), m_world(world) //how to do default stuff?
+    Actor(StudentWorld* world, int imageID, double starting_x_position, double starting_y_position, int starting_direction, int depth) :GraphObject(imageID, starting_x_position, starting_y_position, starting_direction, depth)
     {
+        m_world = world;
         alive = true;
     };
 
@@ -39,17 +40,120 @@ class Peach : public Actor
 {
 private:
     void goTo(double x, double y);
+
     bool has_star_power;
     bool has_shoot_power;
     bool has_jump_power;
-    bool is_temporairly_invisible;
+    bool is_temporairly_invincible;
+    bool can_fire;
+
     int health_points;
     int remaining_jump;
+    int remaining_invincibility_ticks;
     int lives;
+    int ticks_to_recharge_before_next_fire;
+
     bool jumping;
 public:
-    Peach(StudentWorld* world, int level_x, int level_y) :Actor(world, IID_PEACH, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 0), has_star_power(false), has_shoot_power(false), has_jump_power(false), is_temporairly_invisible(false), health_points(1), remaining_jump(0), jumping(false)
+    Peach(StudentWorld* world, int level_x, int level_y) :Actor(world, IID_PEACH, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 0)
     {
+        has_star_power = false;
+        has_shoot_power = false;
+        has_jump_power = false;
+        is_temporairly_invincible = false;
+        can_fire = false;
+
+        health_points = 1;
+        remaining_jump = 0;
+        remaining_invincibility_ticks = 0;
+        lives = 3;
+        ticks_to_recharge_before_next_fire = 0;
+
+        jumping = false;
+    };
+
+    virtual void doSomething();
+
+    bool hasStarPower() 
+    { 
+        return has_star_power; 
+    };
+
+    bool hasShootPower() 
+    { 
+        return has_shoot_power; 
+    };
+
+    bool hasJumpPower() 
+    { 
+        return has_jump_power; 
+    };
+
+    virtual bool blocksMovement() 
+    {
+        return true; 
+    };
+};
+
+class Block : public Actor
+{
+public:
+    Block(StudentWorld* world, int level_x, int level_y) : Actor(world, IID_BLOCK, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 2)
+    {
+    };
+    virtual void doSomething()
+    {
+        return;
+    };
+
+    virtual bool blocksMovement()
+    {
+        return true;
+    };
+private:
+};
+
+class Pipe : public Actor
+{
+private:
+public:
+    Pipe(StudentWorld* world, int level_x, int level_y) : Actor(world, IID_PIPE, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 2)
+    {
+
+    };
+    virtual void doSomething()
+    {
+        return;
+    };
+    virtual bool blocksMovement()
+    {
+        return true;
+    };
+};
+
+class Flag : public Actor
+{
+private:
+
+public:
+    Flag(StudentWorld* world, double level_x, double level_y) : Actor(world, IID_FLAG, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 2)
+    {
+
+    };
+
+    virtual void doSomething();
+
+    virtual bool blocksMovement()
+    {
+        return false;
+    };
+};
+
+class Mario : public Actor
+{
+    Mario(StudentWorld* world, int level_x, int level_y) : Actor(world, IID_MARIO, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 1)
+    {
+
     };
 
     virtual void doSomething();
@@ -57,51 +161,33 @@ public:
     virtual bool blocksMovement()
     {
         return true;
-    }
+    };
 };
+class Goomba : public Actor
+{
+private:
 
-class Block : public Actor
-{
 public:
-    Block(StudentWorld* world, int level_x, int level_y) : Actor(world, IID_BLOCK, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 2)
-{
-};
-    virtual void doSomething()
+    Goomba(StudentWorld* world, double level_x, double level_y) : Actor(world, IID_GOOMBA, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 0)
     {
-        return;
-    }
+
+    };
+
+    virtual void doSomething();
 
     virtual bool blocksMovement()
     {
-        return true;
-    }
-private:
+        return false;
+    };
 };
 
-class Pipe : public Actor
-{
-private:
-    public:
-        Pipe(StudentWorld* world, int level_x, int level_y) : Actor(world, IID_PIPE, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 2)
-        {
-
-        };
-        virtual void doSomething()
-        {
-            return;
-        }
-        virtual bool blocksMovement()
-        {
-            return true;
-        }
-};
-
-class Flag : public Actor
+class Peach_Fireball : public Actor
 {
     private:
 
     public:
-        Flag(StudentWorld* world, double level_x, double level_y) : Actor(world, IID_FLAG, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 2)
+        //TODO: set peach_fireball's direction to peach's direction. how tf do i do that
+        Peach_Fireball(StudentWorld* world, double level_x, double level_y) : Actor(world, IID_PEACH_FIRE, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 1)
         {
 
         };
@@ -111,25 +197,6 @@ class Flag : public Actor
         virtual bool blocksMovement()
         {
             return false;
-        }
-};
-
-class Goomba : public Actor
-{
-    private:
-
-    public:
-        Goomba(StudentWorld* world, double level_x, double level_y) : Actor(world, IID_GOOMBA, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 0)
-        {
-
         };
-
-        virtual void doSomething();
-
-        virtual bool blocksMovement()
-        {
-            return false;
-        }
 };
-
 #endif//ACTOR_H_

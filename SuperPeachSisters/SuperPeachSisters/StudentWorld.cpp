@@ -4,6 +4,9 @@
 #include "Level.h"
 #include "string"
 #include <vector>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 using namespace std;
 
 GameWorld* createStudentWorld(string assetPath)
@@ -14,6 +17,19 @@ GameWorld* createStudentWorld(string assetPath)
 StudentWorld::StudentWorld(string assetPath) :GameWorld(assetPath)
 {
     m_peach = nullptr;
+    m_block = nullptr;
+    m_pipe = nullptr;
+    m_flag = nullptr;
+    m_mario = nullptr;
+    m_flower = nullptr;
+    m_mushroom = nullptr;
+    m_star = nullptr;
+    m_piranha_fireball = nullptr;
+    m_peach_fireball = nullptr;
+    m_shell = nullptr;
+    m_goomba = nullptr;
+    m_koopa = nullptr;
+    m_pirahna = nullptr;
     actors.clear();
 }
 
@@ -46,43 +62,34 @@ int StudentWorld::init()
                     cout << "Location " << i << ", " << j << " is empty" << endl;
                     break;
                 case Level::koopa:
-                    if (isValidPosition(i, j))
-                    {
-                        cout << "Location " << i << ", " << j << " starts with a koopa" << endl;
-                    }
+                    cout << "Location " << i << ", " << j << " starts with a koopa" << endl;
                     break;
                 case Level::goomba:
-                        m_goomba = new Goomba(this, i, j);
-                        actors.push_back(m_goomba);
-                        cout << "Location " << i << ", " << j << " starts with a goomba" << endl;
+                    m_goomba = new Goomba(this, i, j);
+                    actors.push_back(m_goomba);
+                    cout << "Location " << i << ", " << j << " starts with a goomba" << endl;
                     break;
                 case Level::peach:
-                        m_peach = new Peach(this, i, j);
-                        cout << "Location " << i << ", " << j << " is where Peach starts" << endl;
-                        break;
+                    m_peach = new Peach(this, i, j);
+                    cout << "Location " << i << ", " << j << " is where Peach starts" << endl;
+                    break;
                 case Level::flag:
-                    if (isValidPosition(i, j))
-                    {
-                        m_flag = new Flag(this, i, j);
-                        actors.push_back(m_flag);
-                        cout << "Location " << i << ", " << j << " is where a flag is" << endl;
-                    }
+                    m_flag = new Flag(this, i, j);
+                    actors.push_back(m_flag);
+                    cout << "Location " << i << ", " << j << " is where a flag is" << endl;
                     break;
                 case Level::block:
-                        m_block = new Block(this, i, j);
-                        actors.push_back(m_block);
-                        cout << "Location " << i << ", " << j << " holds a regular block" << endl;
+                    m_block = new Block(this, i, j);
+                    actors.push_back(m_block);
+                    cout << "Location " << i << ", " << j << " holds a regular block" << endl;
                     break;
                 case Level::star_goodie_block:
-                    if (isValidPosition(i, j))
-                    {
-                        cout << "Location " << i << ", " << j << " has a star goodie block" << endl;
-                    }
+                    cout << "Location " << i << ", " << j << " has a star goodie block" << endl;
                     break;
                 case Level::pipe:
-                        m_pipe = new Pipe(this, i, j);
-                        actors.push_back(m_pipe);
-                        cout << "Location " << i << ", " << j << " holds a pipe" << endl;
+                    m_pipe = new Pipe(this, i, j);
+                    actors.push_back(m_pipe);
+                    cout << "Location " << i << ", " << j << " holds a pipe" << endl;
                     break;
                 }
             }
@@ -91,13 +98,76 @@ int StudentWorld::init()
     return GWSTATUS_CONTINUE_GAME;
 }
 
+//implementing the move onto another level and if she dies my boi
 int StudentWorld::move()
 {
     m_peach->doSomething();
     for (Actor* i : actors)
     {
-        i->doSomething();
+        if (i->isAlive())
+        {
+            i->doSomething();
+
+            if (!m_peach->isAlive())
+            {
+                decLives();
+                return GWSTATUS_PLAYER_DIED;
+            }
+            if (m_level_completed == true)
+            {
+                playSound(SOUND_FINISHED_LEVEL);
+                return GWSTATUS_FINISHED_LEVEL;
+            }
+        }
     }
+
+    for (auto actor = actors.begin(); actor != actors.end(); actor++)
+    {
+        if (!(* actor)->isAlive())
+        {
+            delete *actor;
+            actors.erase(actor);
+            actor = actors.begin();
+
+        }
+    }
+
+    ostringstream s;
+
+    //what width do i set the text to? Also change it up a little can ya
+    s.fill('0');
+    s << "Score: ";
+    s << setw(6) << getScore() << " ";
+
+    s << "Level: ";
+    s << getLevel() << " ";
+
+    s << "Lives: ";
+    s << getLives() << " ";
+
+    s << "Level: ";
+    s << getLevel() << " ";
+
+    s << "Points: ";
+    s << getScore() << " ";
+
+    if (m_peach->hasStarPower())
+    {
+        s << "StarPower!"<<" ";
+    }
+
+    if (m_peach->hasShootPower())
+    {
+        s << "ShootPower!" << " ";
+    }
+
+    if (m_peach->hasJumpPower())
+    {
+        s << "JumpPower!";
+    }
+
+    setGameStatText(s.str());
+
     return GWSTATUS_CONTINUE_GAME;
 }
 
@@ -128,27 +198,12 @@ bool StudentWorld::collides(Actor* actor1, int offset_x = 0, int offset_y = 0) {
         if (((actor1->getX() + offset_x) < (actor2->getX() + SPRITE_WIDTH - 1)) &&
             ((actor1->getX() + offset_x + SPRITE_WIDTH - 1) > actor2->getX()) &&
             ((actor1->getY() + offset_y) < (actor2->getY() + SPRITE_HEIGHT - 1)) &&
-            ((actor1->getY() + offset_y + SPRITE_HEIGHT - 1) > actor2->getY())) 
+            ((actor1->getY() + offset_y + SPRITE_HEIGHT - 1) > actor2->getY()))
         {
             return true;
         }
     }
     return false;
-}
-
-bool StudentWorld::isValidPosition(double x, double y)
-{   // Go through every actor
-    for (Actor* actor : actors)
-    {
-        if ((actor->getX() + SPRITE_WIDTH - 1) > actor->getX() && x < (actor->getX() + SPRITE_WIDTH - 1))
-        {
-            if ((actor->getY() + SPRITE_HEIGHT - 1 > actor->getY()) && actor->getY() < (actor->getY() + SPRITE_HEIGHT - 1))
-            {
-                return false;
-            }
-        }
-    }
-    return true;
 }
 
 bool StudentWorld::intersecting(double x1, double y1, double x2, double y2)
@@ -177,4 +232,11 @@ bool StudentWorld::overlappingPeach(Actor* a)
         return true;
     }
     return false;
+}
+
+void StudentWorld::addPeachFireball(double x, double y)
+{
+    m_peach_fireball = new Peach_Fireball(this, x, y);
+    actors.push_back(m_peach_fireball);
+    cerr << "Fireball"<<endl;
 }
