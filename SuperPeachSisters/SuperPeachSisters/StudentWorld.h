@@ -28,6 +28,7 @@ class Actor;
 class StudentWorld : public GameWorld
 {
 private:
+
     Peach* m_peach;
     Block* m_block;
     Pipe* m_pipe;
@@ -58,9 +59,15 @@ public:
     bool collides(Actor* actor1, int offset_x, int offset_y);
     bool overlapping(Actor* a, Actor* b);
     bool overlappingPeach(Actor* a);
+    bool overlappingDamageableObject(Actor* a, double x, double y);
+
+    bool isValidPosition(double x, double y, Actor* a);
+    bool isValidPosition(double x, double y);
 
     void addPeachFireball(double x, double y);
+    Peach* getPeach();
 
+    //trying to move to next level
     void levelCompleted()
     {
         m_level_completed = true;

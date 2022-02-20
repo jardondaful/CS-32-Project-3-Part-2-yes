@@ -5,7 +5,6 @@
 #include "string"
 #include <vector>
 
-
 // Students:  add code to this file, Actor.h, StudentWorld.h, and StudentWorld.cpp
 // TODO: x_dist and y_dist instead of x_destination
 void Peach::goTo(double x_destination, double y_destination)
@@ -105,6 +104,7 @@ void Peach::doSomething()
             if (getDirection() == 0) 
             {
                 setDirection(180);
+                peach_direction = 180;
             }
             goTo(getX() - (SPRITE_WIDTH / 2), getY());
             break;
@@ -113,6 +113,7 @@ void Peach::doSomething()
 
             if (getDirection() == 180) {
                 setDirection(0);
+                peach_direction = 0;
             }
             goTo(getX() + (SPRITE_WIDTH / 2), getY());
             break;
@@ -160,8 +161,9 @@ void Peach::doSomething()
                 ticks_to_recharge_before_next_fire = 8;
                 if (this->getDirection() == 180)
                 {
-                    getWorld()->addPeachFireball(this->getX()-4, this->getY());
-                    //cerr<<"Fireball" << endl;
+                    //isValidPosition?
+                        getWorld()->addPeachFireball(this->getX() - 4, this->getY());
+                        //cerr<<"Fireball" << endl;
                 }
                 else if (this->getDirection() == 0)
                 {
@@ -172,7 +174,6 @@ void Peach::doSomething()
                 {
 
                 }
-            //}
             break;
         }
     }
@@ -185,7 +186,7 @@ void Flag::doSomething()
     {
         getWorld()->increaseScore(1000);
         die();
-        getWorld()->levelCompleted();
+        getWorld()->advanceToNextLevel();
     }
 }
 void Goomba::doSomething()
@@ -211,8 +212,49 @@ void Goomba::doSomething()
     else if (direction == 0) moveTo(getX() + 1, getY());
 }
 
-//implement later
+//goes horizontal sometimes in air do not know why
 void Peach_Fireball::doSomething()
 {
-    
+    //how to do overlapping a damageable object? #1
+    /*if (getWorld()->overlappingDamageableObject(this, getX(), getY()) && !getWorld()->overlappingPeach(this))
+    {
+        die();
+        damaged();
+        return;
+    }
+    else
+    {*/
+        // If there is a valid position underneath the fireball
+        // It can hop downwards
+        if (getWorld()->isValidPosition(getX(), getY() - 2 , this))
+        {
+            moveTo(getX(), getY() - 2);
+        }
+        //checking direction parts b) and c)
+
+        
+        if (m_direction == 180)
+        {
+            if (!getWorld()->isValidPosition(getX() - 2, getY(), this))
+            {
+                die();
+                return;
+            }
+            else
+            {
+                moveTo(getX() - 2, getY());
+            }
+        }
+        else if (m_direction == 0)
+        {
+            if (!getWorld()->isValidPosition(getX() + 2, getY(), this))
+            {
+                die();
+                return;
+            }
+            else
+            {
+                moveTo(getX() + 2, getY());
+            }
+        }
 }

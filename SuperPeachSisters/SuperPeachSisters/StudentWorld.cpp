@@ -16,6 +16,7 @@ GameWorld* createStudentWorld(string assetPath)
 
 StudentWorld::StudentWorld(string assetPath) :GameWorld(assetPath)
 {
+
     m_peach = nullptr;
     m_block = nullptr;
     m_pipe = nullptr;
@@ -31,11 +32,14 @@ StudentWorld::StudentWorld(string assetPath) :GameWorld(assetPath)
     m_koopa = nullptr;
     m_pirahna = nullptr;
     actors.clear();
+
+    m_level_completed = false;
 }
 
 int StudentWorld::init()
 {
     Level current_level(assetPath());
+
     string file_level = "level0" + to_string(getLevel()) + ".txt";
     Level::LoadResult result = current_level.loadLevel(file_level);
 
@@ -97,6 +101,10 @@ int StudentWorld::init()
     }
     return GWSTATUS_CONTINUE_GAME;
 }
+
+Peach* StudentWorld::getPeach() {
+    return m_peach;
+};
 
 //implementing the move onto another level and if she dies my boi
 int StudentWorld::move()
@@ -231,9 +239,53 @@ bool StudentWorld::overlappingPeach(Actor* a)
     return false;
 }
 
+//for PeachFireball
+bool StudentWorld::overlappingDamageableObject(Actor* actor1, double x, double y)
+{
+    for (Actor* actor2 : actors)
+    {
+        if (actor1 == actor2)
+        {
+            continue;
+        }
+        if (actor2->isDamageable())
+        {
+            if (collides(actor1, x, y))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+
+bool StudentWorld::isValidPosition(double x, double y)
+{
+    return isValidPosition(x, y, nullptr);
+}
+
+bool StudentWorld::isValidPosition(double x, double y, Actor* a)
+{
+    for (auto actor : actors)
+    {
+        if (actor != a)
+        {
+            if (actor->isAlive() && actor->blocksMovement())
+            {
+                if (intersecting(x, y, actor->getX(), actor->getY()))
+                {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 void StudentWorld::addPeachFireball(double x, double y)
 {
-    m_peach_fireball = new Peach_Fireball(this, x, y);
+    m_peach_fireball = new Peach_Fireball(this, x, y, m_peach->getDirection());
     actors.push_back(m_peach_fireball);
     cerr << "Fireball"<<endl;
 }

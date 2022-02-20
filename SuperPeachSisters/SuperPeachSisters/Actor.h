@@ -34,6 +34,16 @@ public:
     {
         return alive;
     }
+
+    virtual bool isDamageable()
+    {
+        return true;
+    }
+
+    virtual bool damaged()
+    {
+        return true;
+    }
 };
 
 class Peach : public Actor
@@ -54,6 +64,7 @@ private:
     int ticks_to_recharge_before_next_fire;
 
     bool jumping;
+    int peach_direction;
 public:
     Peach(StudentWorld* world, int level_x, int level_y) :Actor(world, IID_PEACH, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 0)
     {
@@ -70,6 +81,7 @@ public:
         ticks_to_recharge_before_next_fire = 0;
 
         jumping = false;
+
     };
 
     virtual void doSomething();
@@ -88,6 +100,7 @@ public:
     { 
         return has_jump_power; 
     };
+
 
     virtual bool blocksMovement() 
     {
@@ -110,6 +123,11 @@ public:
     {
         return true;
     };
+
+    virtual bool isDamageable()
+    {
+        return false;
+    };
 private:
 };
 
@@ -129,6 +147,11 @@ public:
     {
         return true;
     };
+
+    virtual bool isDamageable()
+    {
+        return false;
+    };
 };
 
 class Flag : public Actor
@@ -147,13 +170,18 @@ public:
     {
         return false;
     };
+
+    virtual bool isDamageable()
+    {
+        return false;
+    };
 };
 
 class Mario : public Actor
 {
     Mario(StudentWorld* world, int level_x, int level_y) : Actor(world, IID_MARIO, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 1)
     {
-
+        
     };
 
     virtual void doSomething();
@@ -170,7 +198,7 @@ private:
 public:
     Goomba(StudentWorld* world, double level_x, double level_y) : Actor(world, IID_GOOMBA, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 0)
     {
-
+        
     };
 
     virtual void doSomething();
@@ -184,13 +212,15 @@ public:
 class Peach_Fireball : public Actor
 {
     private:
-
+    private:
+        int m_direction;
     public:
         //TODO: set peach_fireball's direction to peach's direction. how tf do i do that
-        Peach_Fireball(StudentWorld* world, double level_x, double level_y) : Actor(world, IID_PEACH_FIRE, level_x, level_y, 0, 1)
+        Peach_Fireball(StudentWorld* world, double level_x, double level_y, int direction) : Actor(world, IID_PEACH_FIRE, level_x, level_y, 0, 1)
         {
-
+            m_direction = direction;
         };
+
 
         virtual void doSomething();
 
@@ -198,5 +228,10 @@ class Peach_Fireball : public Actor
         {
             return false;
         };
+
+        virtual bool isDamageable()
+        {
+            return false;
+        }
 };
 #endif//ACTOR_H_
