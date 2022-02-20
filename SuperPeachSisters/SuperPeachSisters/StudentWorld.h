@@ -60,6 +60,7 @@ public:
     bool overlappingPeach(Actor* a);
 
     void addPeachFireball(double x, double y);
+
     void levelCompleted()
     {
         m_level_completed = true;

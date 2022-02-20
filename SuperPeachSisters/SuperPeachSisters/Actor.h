@@ -187,7 +187,7 @@ class Peach_Fireball : public Actor
 
     public:
         //TODO: set peach_fireball's direction to peach's direction. how tf do i do that
-        Peach_Fireball(StudentWorld* world, double level_x, double level_y) : Actor(world, IID_PEACH_FIRE, SPRITE_WIDTH* level_x, SPRITE_HEIGHT* level_y, 0, 1)
+        Peach_Fireball(StudentWorld* world, double level_x, double level_y) : Actor(world, IID_PEACH_FIRE, level_x, level_y, 0, 1)
         {
 
         };

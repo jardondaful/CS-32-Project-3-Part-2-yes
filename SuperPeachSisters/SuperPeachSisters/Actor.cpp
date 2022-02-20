@@ -143,7 +143,7 @@ void Peach::doSomething()
 
         //coding the shoot power thingy for #9
         case KEY_PRESS_SPACE:
-            if (!has_shoot_power)
+            /*if (!has_shoot_power)
             {
                 break;
             }
@@ -152,7 +152,7 @@ void Peach::doSomething()
                 break;
             }
             else
-            {
+            {*/
             
             //why no fireball show up?
                 can_fire = true;
@@ -172,7 +172,7 @@ void Peach::doSomething()
                 {
 
                 }
-            }
+            //}
             break;
         }
     }

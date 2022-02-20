@@ -139,9 +139,6 @@ int StudentWorld::move()
     s << "Score: ";
     s << setw(6) << getScore() << " ";
 
-    s << "Level: ";
-    s << getLevel() << " ";
-
     s << "Lives: ";
     s << getLives() << " ";
 
