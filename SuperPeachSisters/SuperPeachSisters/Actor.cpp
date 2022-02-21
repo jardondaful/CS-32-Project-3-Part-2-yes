@@ -16,7 +16,7 @@ void Peach::goTo(double x_destination, double y_destination)
 }
 
 //this is quite incomplete
-void Peach::doSomething() 
+void Peach::doSomething()
 {
     if (!isAlive())
     {
@@ -71,12 +71,12 @@ void Peach::doSomething()
         remaining_jump--;
     }
 
-    if (jumping && remaining_jump == 0) 
+    if (jumping && remaining_jump == 0)
     {
         jumping = false;
     }
 
-    if (!jumping && !somethingUnderPeach) 
+    if (!jumping && !somethingUnderPeach)
     {
         goTo(getX(), getY() - (SPRITE_WIDTH / 2));
     }
@@ -84,7 +84,7 @@ void Peach::doSomething()
     somethingUnderPeach = getWorld()->collides(this, 0, -SPRITE_HEIGHT / 2 - 1);
     somethingOverPeach = getWorld()->collides(this, 0, SPRITE_HEIGHT / 2 + 1);
 
-    if (jumping && somethingUnderPeach) 
+    if (jumping && somethingUnderPeach)
     {
         jumping = false;
         remaining_jump = 0;
@@ -93,15 +93,15 @@ void Peach::doSomething()
     //6) Making Peach move
     int key;
 
-    if (getWorld()->getKey(key)) 
+    if (getWorld()->getKey(key))
     {
         cerr << "current pos: " << getX() << ", " << getY() << endl;
-        switch (key) 
+        switch (key)
         {
-        case KEY_PRESS_LEFT: 
+        case KEY_PRESS_LEFT:
         {
 
-            if (getDirection() == 0) 
+            if (getDirection() == 0)
             {
                 setDirection(180);
                 peach_direction = 180;
@@ -119,7 +119,7 @@ void Peach::doSomething()
             break;
         case KEY_PRESS_UP:
 
-            if (!jumping && somethingUnderPeach) 
+            if (!jumping && somethingUnderPeach)
             {
                 if (has_jump_power)
                 {
@@ -142,39 +142,40 @@ void Peach::doSomething()
             cout << "Remaining jump after key press up: " << remaining_jump << endl;
             break;
 
-        //coding the shoot power thingy for #9
+            //coding the shoot power thingy for #9
         case KEY_PRESS_SPACE:
-            /*if (!has_shoot_power)
+            if (!has_shoot_power)
             {
                 break;
             }
-            else if (ticks_to_recharge_before_next_fire > 0)
+            if (ticks_to_recharge_before_next_fire > 0)
             {
                 break;
             }
             else
-            {*/
-            
-            //why no fireball show up?
+            {
+
+                //why no fireball show up?
                 can_fire = true;
                 getWorld()->playSound(SOUND_PLAYER_FIRE);
                 ticks_to_recharge_before_next_fire = 8;
                 if (this->getDirection() == 180)
                 {
                     //isValidPosition?
-                        getWorld()->addPeachFireball(this->getX() - 4, this->getY());
-                        //cerr<<"Fireball" << endl;
+                    getWorld()->addPeachFireball(this->getX() - 4, this->getY());
+                    //cerr<<"Fireball" << endl;
                 }
                 else if (this->getDirection() == 0)
                 {
-                    getWorld()->addPeachFireball(this->getX()+4, this->getY());
+                    getWorld()->addPeachFireball(this->getX() + 4, this->getY());
                     //cerr<<"Fireball" << endl;
                 }
                 else
                 {
 
                 }
-            break;
+                break;
+            }
         }
     }
 }
@@ -215,24 +216,23 @@ void Goomba::doSomething()
 //goes horizontal sometimes in air do not know why
 void Peach_Fireball::doSomething()
 {
-    //how to do overlapping a damageable object? #1
-    /*if (getWorld()->overlappingDamageableObject(this, getX(), getY()) && !getWorld()->overlappingPeach(this))
+    //how to let object know that it was damaged?
+    if (getWorld()->overlappingDamageableObject(this, getX(), getY()) && !getWorld()->overlappingPeach(this))
     {
         die();
         damaged();
         return;
     }
     else
-    {*/
+    {
         // If there is a valid position underneath the fireball
         // It can hop downwards
-        if (getWorld()->isValidPosition(getX(), getY() - 2 , this))
+        if (getWorld()->isValidPosition(getX(), getY() - 2, this))
         {
             moveTo(getX(), getY() - 2);
         }
         //checking direction parts b) and c)
 
-        
         if (m_direction == 180)
         {
             if (!getWorld()->isValidPosition(getX() - 2, getY(), this))
@@ -257,4 +257,5 @@ void Peach_Fireball::doSomething()
                 moveTo(getX() + 2, getY());
             }
         }
+    }
 }
